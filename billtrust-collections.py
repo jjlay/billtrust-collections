@@ -281,3 +281,141 @@ def add_contact_to_account(access_token, tenant_id, account_number, first_name,
         logging.error('----------------------------------------------------\n\n')
 
     return contact_response.json()
+
+
+
+#########################################################################
+#
+# Function: contact_internalid_lookup()
+#
+# Parameters:
+#    access_token : access token for session (str)
+#    tenant_id : tenant id to query (str)
+#    account_number : customer account number (not Billtrust accountid) (str)
+#    first_name : (str)
+#    last_name : (str)
+#
+# Returns:
+#    string with the internal Billtrust Contact Id if found or empty 
+#    string if not
+#
+# See also:
+#    Billtrust Python Code Samples
+#    https://api-docs.aws-prod.billtrust.com/examples/python/
+#
+# TODO:
+#    - Gracefully handle the apostrophe and backslash in strings
+#
+#########################################################################
+
+def contact_internalid_lookup(access_token, tenant_id, account_number, firstname, lastname) -> str :
+    try:
+        contact_list = get_contacts_for_account(access_token, tenant_id, account_number)
+
+        for contact in contact_list:
+            if contact['firstName'] == firstname and contact['lastName'] == lastname :
+                return contact['id']
+
+    except Exception as error:
+        logging.warning('Failed to find contact internal id for Account Number: ' + account_number + ', First Name: ' + firstname + ', Last Name: ' + lastname)
+
+    return ''
+
+
+#########################################################################
+#
+# Function: account_internalid_lookup()
+#
+# Parameters:
+#    access_token : access token for session (str)
+#    tenant_id : tenant id to query (str)
+#    account_number : customer account number (not Billtrust accountid) (str)
+#
+# Returns:
+#    string with the internal Billtrust Account Id if found or empty 
+#    string if not
+#
+# Comments:
+#    You will need to change the field name of the account number to
+#    match your Billtrust configuration. In the code below, the 
+#    customer's number is in a field called "custNo".
+#
+# See also:
+#    Billtrust Python Code Samples
+#    https://api-docs.aws-prod.billtrust.com/examples/python/
+#
+# TODO:
+#    - Gracefully handle the apostrophe and backslash in strings
+#
+#########################################################################
+
+def account_internalid_lookup(access_token, tenant_id, account_number) -> str :
+    try:
+        accounts_uri = f"https://arc-aegis.billtrust.com/collections/api/v1/tenants/{tenant_id}/customermasters/customernumber/{account_number}"
+        accounts_headers = {"Accept":"application/json", "Content-Type": "application/json", "X-Billtrust-Auth":access_token}
+        accounts_response = requests.get(accounts_uri, headers=accounts_headers)
+        accounts_response.raise_for_status()
+        accounts_json = accounts_response.json()
+
+        this_tenant = accounts_json['tenantId']
+        this_id = accounts_json['id']
+        this_customer = accounts_json['custNo']  # Update if needed
+
+        return this_id
+
+    except Exception as error:
+        logging.warning('Failed to find account internal id for Account Number: ' + account_number)
+
+
+    return ''
+
+
+#########################################################################
+#
+# Function: contact_delete()
+#
+# Parameters:
+#    access_token : access token for session (str)
+#    tenant_id : tenant id to query (str)
+#    account_number : customer account number (not Billtrust accountid) (str)
+#    contact_id : internal Billtrust contact id (str)
+#
+# Returns:
+#    nothing
+#
+# See also:
+#    Billtrust Python Code Samples
+#    https://api-docs.aws-prod.billtrust.com/examples/python/
+#
+# TODO:
+#    - Gracefully handle the apostrophe and backslash in strings
+#
+#########################################################################
+
+def contact_delete(access_token, tenant_id, account_number, contact_id):
+    try:
+        
+        accounts_uri = f"https://arc-aegis.billtrust.com/collections/api/v1/tenants/{tenant_id}/collectioncustomers/accountNumber/{account_number}/collectioncontacts/{contact_id}"
+        accounts_headers = {"Accept":"application/json", "Content-Type": "application/json", "X-Billtrust-Auth":access_token}
+        accounts_response = requests.delete(accounts_uri, headers=accounts_headers)
+        accounts_response.raise_for_status()
+        accounts_json = accounts_response.json()
+        return 
+
+    except Exception as error:
+        frame = getframeinfo(currentframe())
+        filename = frame.filename
+        line = str(frame.lineno)
+
+        logging.error('\n===== DELETE CONTACT =====')
+        logging.error('   Failed to delete contact')
+        logging.error('   File: ' + filename)
+        logging.error('   Function: ' + __name__)
+        logging.error('   Line: ' + line)
+        logging.error('   Account: ' + account_number)
+        logging.error('   ContactId: ' + contact_id)
+        logging.error(str(error))
+        logging.error('\n')
+        logging.error('----------------------------------------------------\n\n')
+
+    return 
