@@ -452,6 +452,9 @@ def contact_delete(access_token, tenant_id, account_number, contact_id):
 # Returns:
 #    nothing
 #
+# Comments:
+#    You may need to change field names to match your installation.
+#
 # See also:
 #    Billtrust Python Code Samples
 #    https://api-docs.aws-prod.billtrust.com/examples/python/
@@ -466,7 +469,7 @@ def contact_delete(access_token, tenant_id, account_number, contact_id):
 def contact_update(access_token, tenant_id, account_number, contact_id, first_name, 
                            last_name, language, timezone, notes, email, officePhone,
                            cellPhone, fax, title, address1, address2, city, state, zip,
-                           country, updatedOn, updatedBy, includeInCorrespondence):
+                           country, updatedOn, updatedBy, includeInCorrespondence) -> json :
 
     notes = notes.replace('"', '')
     notes = notes.replace("'", '')
