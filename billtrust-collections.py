@@ -180,29 +180,29 @@ def get_contacts_for_account(access_token, tenant_id, account_number) -> json :
 # Parameters:
 #    access_token : access token for session (str)
 #    tenant_id : tenant id to query (str)
-#    account_number : customer account number (not Billtrust accountid) 
-#    first_name 
-#    last_name
-#    language
-#    timezone
-#    notes
-#    email
-#    officePhone
-#    cellPhone
-#    fax
-#    title
-#    address1
-#    address2
-#    city
-#    state
-#    zip
-#    country
-#    updatedOn
-#    updatedBy
-#    includeInCorrespondence
+#    account_number : customer account number (not Billtrust accountid) (str)
+#    first_name : (str)
+#    last_name : (str)
+#    language : (str)
+#    timezone : (str)
+#    notes : (str)
+#    email : (str)
+#    officePhone : (str)
+#    cellPhone : (str)
+#    fax : (str)
+#    title : (str)
+#    address1 : (str)
+#    address2 : (str)
+#    city : (str)
+#    state : (str)
+#    zip : (str)
+#    country : (str)
+#    updatedOn : (str)
+#    updatedBy : (str)
+#    includeInCorrespondence : (str)
 #
 # Returns:
-#    json with a list of contacts
+#    json with the response from the API
 #
 # See also:
 #    Billtrust Python Code Samples
