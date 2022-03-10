@@ -419,3 +419,180 @@ def contact_delete(access_token, tenant_id, account_number, contact_id):
         logging.error('----------------------------------------------------\n\n')
 
     return 
+
+
+#########################################################################
+#
+# Function: contact_update()
+#
+# Parameters:
+#    access_token : access token for session (str)
+#    tenant_id : tenant id to query (str)
+#    account_number : customer account number (not Billtrust accountid) (str)
+#    first_name : (str)
+#    last_name : (str)
+#    language : (str)
+#    timezone : (str)
+#    notes : (str)
+#    email : (str)
+#    officePhone : (str)
+#    cellPhone : (str)
+#    fax : (str)
+#    title : (str)
+#    address1 : (str)
+#    address2 : (str)
+#    city : (str)
+#    state : (str)
+#    zip : (str)
+#    country : (str)
+#    updatedOn : (str)
+#    updatedBy : (str)
+#    includeInCorrespondence : (str)
+#    
+# Returns:
+#    nothing
+#
+# See also:
+#    Billtrust Python Code Samples
+#    https://api-docs.aws-prod.billtrust.com/examples/python/
+#
+# TODO:
+#    - Gracefully handle the apostrophe and backslash in strings
+#    - Clean up logging
+#    - Update only fields that changed
+#
+#########################################################################
+
+def contact_update(access_token, tenant_id, account_number, contact_id, first_name, 
+                           last_name, language, timezone, notes, email, officePhone,
+                           cellPhone, fax, title, address1, address2, city, state, zip,
+                           country, updatedOn, updatedBy, includeInCorrespondence):
+
+    notes = notes.replace('"', '')
+    notes = notes.replace("'", '')
+
+    if len(language) < 2 :
+        language = 'en'
+
+    if len(timezone) < 4 :
+        timezone = 'America/Chicago'
+
+    try :
+        update_body_string =  \
+            '[{' + \
+            '"value" : "' + format(first_name) + '", ' + \
+            '"path" : "FirstName", ' + \
+            '"op" : "replace" ' + \
+            '}, ' + \
+            '{' + \
+            '"value" : "' + format(last_name) + '", ' + \
+            '"path" : "LastName", ' + \
+            '"op" : "replace" ' + \
+            '}, ' + \
+            '{' + \
+            '"value" : "' + format(language) + '", ' + \
+            '"path" : "Language", ' + \
+            '"op" : "replace"' + \
+            '}, ' + \
+            '{' + \
+            '"value" : "' + format(notes) + '", ' + \
+            '    "path" : "Notes", ' + \
+            '    "op" : "replace" ' + \
+            '  }, ' + \
+            '  {  ' + \
+            '    "value" : "' + format(email) + '", ' + \
+            '    "path" : "Email", ' + \
+            '    "op" : "replace" ' + \
+            '  }, ' + \
+            '  {  ' + \
+            '    "value" : "' + format(officePhone) + '", ' + \
+            '    "path" : "OfficePhone", ' + \
+            '    "op" : "replace" ' + \
+            '  }, ' + \
+            ' {' + \
+            '    "value" : "' + format(cellPhone) + '", ' + \
+            '    "path" : "CellPhone", ' + \
+            '    "op" : "replace" ' + \
+            '},  ' + \
+            ' {' + \
+            '    "value" : "' + format(fax) + '", ' + \
+            '    "path" : "Fax", ' + \
+            '    "op" : "replace" ' + \
+            '},  ' + \
+            '  {  ' + \
+            '    "value" : "' + format(title) + '", ' + \
+            '    "path" : "Title", ' + \
+            '    "op" : "replace" ' + \
+            '},  ' + \
+            '  {  ' + \
+            '    "value" : "' + format(address1) + '", ' + \
+            '    "path" : "Address1", ' + \
+            '    "op" : "replace" ' + \
+            '},  ' + \
+            '  {  ' + \
+            '    "value" : "' + format(address2) + '", ' + \
+            '    "path" : "Address2", ' + \
+            '    "op" : "replace" ' + \
+            '},  ' + \
+            '  {  ' + \
+            '    "value" : "' + format(city) + '", ' + \
+            '    "path" : "City", ' + \
+            '    "op" : "replace" ' + \
+            '},  ' + \
+            '  {  ' + \
+            '    "value" : "' + format(state) + '", ' + \
+            '    "path" : "State", ' + \
+            '    "op" : "replace" ' + \
+            '},  ' + \
+            '  {  ' + \
+            '    "value" : "' + format(zip) + '", ' + \
+            '    "path" : "Zip", ' + \
+            '    "op" : "replace" ' + \
+            '},  ' + \
+            '  {  ' + \
+            '    "value" : "' + format(country) + '", ' + \
+            '    "path" : "Country", ' + \
+            '    "op" : "replace" ' + \
+            '},  ' + \
+            '  {  ' + \
+            '    "value" : "' + format(timezone) + '", ' + \
+            '    "path" : "TimeZone", ' + \
+            '    "op" : "replace" ' + \
+            '},  ' + \
+            '  {  ' + \
+            '    "value" : "' + format(includeInCorrespondence) + '", ' + \
+            '    "path" : "IncludeInCorrespondence", ' + \
+            '    "op" : "replace" ' + \
+            '}]'
+
+        update_body = json.loads(update_body_string)
+        update_uri = f"https://arc-aegis.billtrust.com/collections/api/v1/tenants/{tenant_id}/collectioncustomers/accountNumber/{account_number}/collectioncontacts/{contact_id}"
+        update_headers = {"Accept":"application/json", "X-Billtrust-Auth":access_token}
+
+        return_value = ''
+    
+        update_response = requests.patch(update_uri, headers=update_headers, json=update_body)
+        update_response.raise_for_status()
+        return_value = update_response.json()
+
+    except Exception as error:
+        frame = getframeinfo(currentframe())
+        filename = frame.filename
+        line = str(frame.lineno)
+
+        logging.error('\n===== UPDATE CONTACT =====')
+        logging.error('   Failed to update contact')
+        logging.error('   File: ' + filename)
+        logging.error('   Function: ' + __name__)
+        logging.error('   Line: ' + line)
+        logging.error('   Account: ' + account_number)
+        logging.error('   First Name: ' + first_name)
+        logging.error('   Last Name: ' + last_name)
+        logging.error('   Email: ' + email)
+        logging.error(str(error))
+        logging.error('\n')
+        if len(return_value) > 0 :
+            logging.error(json.dumps(return_value, indent=3))
+        logging.error('----------------------------------------------------\n\n')
+
+    return return_value
